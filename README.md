@@ -15,7 +15,6 @@ The plugin currently offers the following features:
 # Currently supported platforms
 
 - Android
-- iOS
 
 # Installation
 
