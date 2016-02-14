@@ -48,7 +48,7 @@ public class BluetoothStatus extends CordovaPlugin {
             return true;
         }
         else if(action.equals("test")) {
-            sendJS("console.log(\"test\")");
+            log("tes + 123 aa");
             return true;
         }
         return false;
@@ -127,6 +127,10 @@ public class BluetoothStatus extends CordovaPlugin {
                 mwebView.loadUrl(js);
             }
         });
+    }
+
+    private void log(final String log) {
+        sendJS("javascript:console.log('"+log+"');");
     }
 
     //broadcast receiver for BT intent changes
