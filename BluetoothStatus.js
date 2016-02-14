@@ -32,7 +32,7 @@ BluetoothStatus.bt = function(sucess,error) {
 }
 BluetoothStatus.eventlist=[];
 BluetoothStatus.btaddevent = function(type,callback) {
-    luetoothStatus.eventlist.push([type,callback]);
+    BluetoothStatus.eventlist.push([type,callback]);
 }
 
 BluetoothStatus.btevent = function(type,data){
