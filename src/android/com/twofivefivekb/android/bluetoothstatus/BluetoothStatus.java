@@ -42,7 +42,7 @@ public class BluetoothStatus extends CordovaPlugin {
     InputStream i;
         
     @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+    public boolean execute(final String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("enableBT")) {
             enableBT();
             return true;
@@ -60,7 +60,7 @@ public class BluetoothStatus extends CordovaPlugin {
             return true;
         }
         else if(action.equals("setName")) {
-            bluetoothAdapter.setName("ICH");
+            bluetoothAdapter.setName(args.getString(0));
             return true;
         }
         else if(action.equals("bt")) {
@@ -69,18 +69,21 @@ public class BluetoothStatus extends CordovaPlugin {
               if(args.getString(0).equals("startDiscovery"))
               {
                 log(args.getString(0));
-                bluetoothAdapter.startDiscovery();                
+                bluetoothAdapter.startDiscovery();          
+                callbackContext.success();
               }
               if(args.getString(0).equals("cancelDiscovery"))
               {
                 log(args.getString(0));
                 bluetoothAdapter.cancelDiscovery();                
+                callbackContext.success();
               }
               if(args.getString(0).equals("finduuids"))
               {
                 log(args.getString(0));
                 BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
                 device.fetchUuidsWithSdp();
+                callbackContext.success();
               }
               if(args.getString(0).equals("getuuids"))
               {
@@ -100,31 +103,48 @@ public class BluetoothStatus extends CordovaPlugin {
                 BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
                 pin=args.getString(2);
                 device.createBond();
+                callbackContext.success();
               }
               if(args.getString(0).equals("connect"))
               {
-                log(args.getString(0));
-                BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
-                UUID u = UUID.fromString(args.getString(2));
-                socked= device.createInsecureRfcommSocketToServiceRecord(u);
-                socked.connect();
-                o =socked.getOutputStream();
-                i= socked.getInputStream();
+                new Thread(new Runnable() {
+                  public void run() {
+                    try
+                    {
+                      log(args.getString(0));
+                      BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
+                      UUID u = UUID.fromString(args.getString(2));
+                      socked= device.createInsecureRfcommSocketToServiceRecord(u);
+                      socked.connect();
+                      o =socked.getOutputStream();
+                      i= socked.getInputStream();
+                      callbackContext.success();
+                    }
+                    catch(Exception e)
+                    {
+                      callbackContext.error(e.toString());
+                      log(e.toString());
+                    }
+                  }
+                }).start();
               }
               if(args.getString(0).equals("isConnected"))
               {
                 log(args.getString(0));
+                boolean b=false;
                 if(socked!=null)
                 {
-                  log(""+socked.isConnected());
-                  return socked.isConnected();
+                  b=socked.isConnected();
                 }  
+                log(""+b);
+                callbackContext.success(""+b);
               }
               
               if(args.getString(0).equals("send"))
               {
                 log(args.getString(0));
                 o.write(args.getString(1).getBytes());
+                callbackContext.success();
               }
               if(args.getString(0).equals("receive"))
               {
@@ -147,6 +167,7 @@ public class BluetoothStatus extends CordovaPlugin {
                   socked.close();
                   socked=null;
                 }
+                callbackContext.success();
               }
     
               if(args.getString(0).equals("state"))
@@ -170,9 +191,7 @@ public class BluetoothStatus extends CordovaPlugin {
             {
               callbackContext.error(e.toString());
               log(e.toString());
-              return false;
             }
-            
             return true;
         }
         return false;
