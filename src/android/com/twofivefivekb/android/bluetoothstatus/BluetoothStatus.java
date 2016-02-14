@@ -47,6 +47,10 @@ public class BluetoothStatus extends CordovaPlugin {
             bluetoothAdapter.setName("ICH");
             return true;
         }
+        else if(action.equals("test")) {
+            sendJS("console.log(\"test\")");
+            return true;
+        }
         return false;
     }
 
