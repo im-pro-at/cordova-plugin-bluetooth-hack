@@ -10,6 +10,7 @@ import org.json.JSONException;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +49,10 @@ public class BluetoothStatus extends CordovaPlugin {
             return true;
         }
         else if(action.equals("test")) {
-            log("tes + 123 aa");
+            for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
+              log("getBondedDevices "+ device.getName() + "\n" + device.getAddress());
+            }
+            bluetoothAdapter.startDiscovery();
             return true;
         }
         return false;
@@ -72,7 +76,12 @@ public class BluetoothStatus extends CordovaPlugin {
         bluetoothAdapter = bluetoothManager.getAdapter();
 
         // Register for broadcasts on BluetoothAdapter state change
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         mcordova.getActivity().registerReceiver(mReceiver, filter);
     }
 
@@ -158,6 +167,26 @@ public class BluetoothStatus extends CordovaPlugin {
                         break;
                 }
             }
+            
+            if (action.equals(BluetoothDevice.ACTION_FOUND)) {
+                // Get the BluetoothDevice object from the Intent
+                log("!!!!!!!!!!!!! ");
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                log("DeviceList " + device.getName() + "\n" + device.getAddress());
+            }
+            
+            if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
+                log("Discovery Finished");
+                for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
+                  log("getBondedDevices "+ device.getName() + "\n" + device.getAddress());
+                }
+            }
+            
+            if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
+                log("Discovery Started");
+            }
+            
         }
     };
+        
 }
