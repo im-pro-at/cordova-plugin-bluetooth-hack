@@ -18,6 +18,12 @@ BluetoothStatus.promptForBT = function() {
     exec(null, null, "BluetoothStatus", "promptForBT", []);
 };
 
+BluetoothStatus.makeVisible = function() {
+    exec(null, null, "BluetoothStatus", "makeVisible", []);
+};
+
+
+
 BluetoothStatus.hasBT = false;
 BluetoothStatus.hasBTLE = false;
 BluetoothStatus.BTenabled = false;
