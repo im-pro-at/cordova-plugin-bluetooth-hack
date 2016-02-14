@@ -23,6 +23,7 @@ import android.os.ParcelUuid;
 import java.lang.Exception;
 import java.util.UUID;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 
 public class BluetoothStatus extends CordovaPlugin {
@@ -32,6 +33,12 @@ public class BluetoothStatus extends CordovaPlugin {
     private static final String LOG_TAG = "BluetoothStatus";
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
+    
+    private String pin="";
+    
+    BluetoothSocket socked=null;
+    OutputStream o;
+    InputStream i;
     
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
@@ -58,10 +65,15 @@ public class BluetoothStatus extends CordovaPlugin {
         else if(action.equals("test")) {
             try
             {
-              if(args.getString(0).equals("discovery"))
+              if(args.getString(0).equals("startDiscovery"))
               {
                 log(args.getString(0));
                 bluetoothAdapter.startDiscovery();                
+              }
+              if(args.getString(0).equals("cancelDiscovery"))
+              {
+                log(args.getString(0));
+                bluetoothAdapter.cancelDiscovery();                
               }
               if(args.getString(0).equals("uuids"))
               {
@@ -73,8 +85,7 @@ public class BluetoothStatus extends CordovaPlugin {
               {
                 log(args.getString(0));
                 BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
-                boolean b= device.setPin(new byte[]{0,0,0,0});
-                log("pin "+b);
+                pin=args.getString(2);
                 device.createBond();
               }
               if(args.getString(0).equals("connect"))
@@ -82,12 +93,47 @@ public class BluetoothStatus extends CordovaPlugin {
                 log(args.getString(0));
                 BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
                 UUID u = UUID.fromString(args.getString(2));
-                BluetoothSocket s= device.createInsecureRfcommSocketToServiceRecord(u);
-                s.connect();
-                OutputStream o =s.getOutputStream();
-                o.write("Sesam öffne dich!\n\r".getBytes());
-                o.flush();
+                socked= device.createInsecureRfcommSocketToServiceRecord(u);
+                socked.connect();
+                o =socked.getOutputStream();
+                i= socked.getInputStream();
               }
+              if(args.getString(0).equals("isConnected"))
+              {
+                log(args.getString(0));
+                if(socked!=null)
+                {
+                  log(""+socked.isConnected());
+                }  
+              }
+              
+              if(args.getString(0).equals("send"))
+              {
+                log(args.getString(0));
+                o.write(args.getString(1).getBytes());
+              }
+              if(args.getString(0).equals("receive"))
+              {
+                log(args.getString(0));
+                String s="";
+                while(i.available()>0)
+                {
+                  byte[] b= new byte[1];
+                  i.read(b);
+                  s+=""+((char)b[0]);
+                }
+                log(s);
+              }
+              if(args.getString(0).equals("close"))
+              {
+                log(args.getString(0));
+                if(socked!=null)
+                {
+                  socked.close();
+                  socked=null;
+                }
+              }
+    
               if(args.getString(0).equals("state"))
               {
                 log(args.getString(0));
@@ -137,6 +183,10 @@ public class BluetoothStatus extends CordovaPlugin {
         filter.addAction(BluetoothDevice.ACTION_UUID);
         
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 
         mcordova.getActivity().registerReceiver(mReceiver, filter);
     }
@@ -225,23 +275,21 @@ public class BluetoothStatus extends CordovaPlugin {
             }
             
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
-                // Get the BluetoothDevice object from the Intent
-                log("!!!!!!!!!!!!! ");
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                log("DeviceList " + device.getName() + "\n" + device.getAddress());
+                log(action+" "+"DeviceList " + device.getName() + "\n" + device.getAddress());
             }
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
-                log("Discovery Finished");
+                log(action+" "+"Discovery Finished");
             }
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                log("Discovery Started");
+                log(action+" "+"Discovery Started");
             }
 
             if (action.equals(BluetoothDevice.ACTION_UUID)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                log("BluetoothDevice.ACTION_UUID "+device.getName());
+                log(action+" "+device.getName());
                 for(ParcelUuid u: device.getUuids())
                 {
                   log(u.toString());                  
@@ -250,7 +298,24 @@ public class BluetoothStatus extends CordovaPlugin {
 
             if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                log("BluetoothDevice.ACTION_BOND_STATE_CHANGED "+device.getName()+" "+device.getBondState());
+                log(action+" "+device.getName()+" "+device.getBondState());
+            }
+            
+            if (action.equals(BluetoothDevice.ACTION_PAIRING_REQUEST)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                log(action+" "+device.getName()+" "+device.getBondState());
+                log(Arrays.toString(pin.getBytes()));
+                boolean b= device.setPin(pin.getBytes());
+                log("pin "+b);
+            }
+
+            if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                log(action+" "+device.getName()+" "+device.getName()+" "+device.getBondState());
+            }
+            if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                log(action+" "+device.getName()+" "+device.getName()+" "+device.getBondState());
             }
             
         }
