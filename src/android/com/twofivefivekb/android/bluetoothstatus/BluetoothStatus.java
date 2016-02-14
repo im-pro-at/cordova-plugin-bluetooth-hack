@@ -6,6 +6,7 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaArgs;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONException;
 
 import android.bluetooth.BluetoothAdapter;
@@ -39,7 +40,7 @@ public class BluetoothStatus extends CordovaPlugin {
     BluetoothSocket socked=null;
     OutputStream o;
     InputStream i;
-    
+        
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("enableBT")) {
@@ -62,7 +63,7 @@ public class BluetoothStatus extends CordovaPlugin {
             bluetoothAdapter.setName("ICH");
             return true;
         }
-        else if(action.equals("test")) {
+        else if(action.equals("bt")) {
             try
             {
               if(args.getString(0).equals("startDiscovery"))
@@ -75,11 +76,23 @@ public class BluetoothStatus extends CordovaPlugin {
                 log(args.getString(0));
                 bluetoothAdapter.cancelDiscovery();                
               }
-              if(args.getString(0).equals("uuids"))
+              if(args.getString(0).equals("finduuids"))
               {
                 log(args.getString(0));
                 BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
                 device.fetchUuidsWithSdp();
+              }
+              if(args.getString(0).equals("getuuids"))
+              {
+                log(args.getString(0));
+                BluetoothDevice device= bluetoothAdapter.getRemoteDevice(args.getString(1));
+                JSONArray json = new JSONArray();
+                for(ParcelUuid u: device.getUuids())
+                {
+                  log(u.toString());
+                  json.put(u.toString());
+                }              
+                callbackContext.success(json);
               }
               if(args.getString(0).equals("pair"))
               {
@@ -104,6 +117,7 @@ public class BluetoothStatus extends CordovaPlugin {
                 if(socked!=null)
                 {
                   log(""+socked.isConnected());
+                  return socked.isConnected();
                 }  
               }
               
@@ -123,6 +137,7 @@ public class BluetoothStatus extends CordovaPlugin {
                   s+=""+((char)b[0]);
                 }
                 log(s);
+                callbackContext.success(s);
               }
               if(args.getString(0).equals("close"))
               {
@@ -143,11 +158,19 @@ public class BluetoothStatus extends CordovaPlugin {
                 log("getName() "+device.getName());
                 log("getType() "+device.getType());
                 log("toString() "+device.toString());
+                JSONObject json = new JSONObject();
+                json.put("Address",""+device.getAddress());
+                json.put("Bond",""+device.getBondState());
+                json.put("Name",""+device.getName());
+                json.put("Type",""+device.getType());
+                callbackContext.success(json);
               }
             }
             catch(Exception e)
             {
+              callbackContext.error(e.toString());
               log(e.toString());
+              return false;
             }
             
             return true;
@@ -253,7 +276,7 @@ public class BluetoothStatus extends CordovaPlugin {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-
+            
             if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                 final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 switch (state) {
@@ -277,14 +300,17 @@ public class BluetoothStatus extends CordovaPlugin {
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+"DeviceList " + device.getName() + "\n" + device.getAddress());
+                sendJS("javascript:cordova.fireWindowEvent('bl.found','"+device.getAddress()+"');");
             }
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
                 log(action+" "+"Discovery Finished");
+                sendJS("javascript:cordova.fireWindowEvent('bl.discovery_finised');");
             }
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
                 log(action+" "+"Discovery Started");
+                sendJS("javascript:cordova.fireWindowEvent('bl.discovery_started');");
             }
 
             if (action.equals(BluetoothDevice.ACTION_UUID)) {
@@ -294,11 +320,13 @@ public class BluetoothStatus extends CordovaPlugin {
                 {
                   log(u.toString());                  
                 }
+                sendJS("javascript:cordova.fireWindowEvent('bl.UUID');");
             }
 
             if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+device.getName()+" "+device.getBondState());
+                sendJS("javascript:cordova.fireWindowEvent('bl.bound');");
             }
             
             if (action.equals(BluetoothDevice.ACTION_PAIRING_REQUEST)) {
@@ -312,10 +340,12 @@ public class BluetoothStatus extends CordovaPlugin {
             if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+device.getName()+" "+device.getName()+" "+device.getBondState());
+                sendJS("javascript:cordova.fireWindowEvent('bl.connected');");
             }
             if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+device.getName()+" "+device.getName()+" "+device.getBondState());
+                sendJS("javascript:cordova.fireWindowEvent('bl.disconnected');");
             }
             
         }
