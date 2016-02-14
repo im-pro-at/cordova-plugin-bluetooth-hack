@@ -37,6 +37,12 @@ public class BluetoothStatus extends CordovaPlugin {
             initPlugin();
             return true;
         }
+        else if(action.equals("makeVisible")) {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
+            mcordova.getActivity().startActivity(intent);
+            return true;
+        }
         return false;
     }
 
