@@ -251,7 +251,7 @@ public class BluetoothStatus extends CordovaPlugin {
                 Log.e(LOG_TAG, "Bluetooth is enabled");
 
                 sendJS("javascript:cordova.plugins.BluetoothStatus.BTenabled = true;");
-                sendJS("javascript:cordova.fireWindowEvent('BluetoothStatus.enabled');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('BluetoothStatus.enabled');");
             } else {
                 Log.e(LOG_TAG, "Bluetooth is not enabled");
             }
@@ -284,14 +284,14 @@ public class BluetoothStatus extends CordovaPlugin {
                         Log.e(LOG_TAG, "Bluetooth was disabled");
 
                         sendJS("javascript:cordova.plugins.BluetoothStatus.BTenabled = false;");
-                        sendJS("javascript:cordova.fireWindowEvent('BluetoothStatus.disabled');");
+                        sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('BluetoothStatus.disabled');");
 
                         break;
                     case BluetoothAdapter.STATE_ON:
                         Log.e(LOG_TAG, "Bluetooth was enabled");
 
                         sendJS("javascript:cordova.plugins.BluetoothStatus.BTenabled = true;");
-                        sendJS("javascript:cordova.fireWindowEvent('BluetoothStatus.enabled');");
+                        sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('BluetoothStatus.enabled');");
 
                         break;
                 }
@@ -300,17 +300,17 @@ public class BluetoothStatus extends CordovaPlugin {
             if (action.equals(BluetoothDevice.ACTION_FOUND)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+"DeviceList " + device.getName() + "\n" + device.getAddress());
-                sendJS("javascript:cordova.fireWindowEvent('bl.found','"+device.getAddress()+"');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.found','"+device.getAddress()+"');");
             }
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
                 log(action+" "+"Discovery Finished");
-                sendJS("javascript:cordova.fireWindowEvent('bl.discovery_finised');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.discovery_finised');");
             }
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
                 log(action+" "+"Discovery Started");
-                sendJS("javascript:cordova.fireWindowEvent('bl.discovery_started');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.discovery_started');");
             }
 
             if (action.equals(BluetoothDevice.ACTION_UUID)) {
@@ -320,13 +320,13 @@ public class BluetoothStatus extends CordovaPlugin {
                 {
                   log(u.toString());                  
                 }
-                sendJS("javascript:cordova.fireWindowEvent('bl.UUID');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.UUID');");
             }
 
             if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+device.getName()+" "+device.getBondState());
-                sendJS("javascript:cordova.fireWindowEvent('bl.bound');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.bound');");
             }
             
             if (action.equals(BluetoothDevice.ACTION_PAIRING_REQUEST)) {
@@ -340,12 +340,12 @@ public class BluetoothStatus extends CordovaPlugin {
             if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+device.getName()+" "+device.getName()+" "+device.getBondState());
-                sendJS("javascript:cordova.fireWindowEvent('bl.connected');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.connected');");
             }
             if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 log(action+" "+device.getName()+" "+device.getName()+" "+device.getBondState());
-                sendJS("javascript:cordova.fireWindowEvent('bl.disconnected');");
+                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.disconnected');");
             }
             
         }
