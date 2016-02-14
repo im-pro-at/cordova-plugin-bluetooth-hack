@@ -23,6 +23,11 @@ BluetoothStatus.makeVisible = function() {
 };
 
 
+BluetoothStatus.setName = function() {
+    exec(null, null, "BluetoothStatus", "setName", []);
+};
+
+
 
 BluetoothStatus.hasBT = false;
 BluetoothStatus.hasBTLE = false;
