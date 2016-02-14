@@ -43,6 +43,10 @@ public class BluetoothStatus extends CordovaPlugin {
             mcordova.getActivity().startActivity(intent);
             return true;
         }
+        else if(action.equals("setName")) {
+            bluetoothAdapter.setName("ICH");
+            return true;
+        }
         return false;
     }
 
