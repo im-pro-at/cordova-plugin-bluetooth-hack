@@ -25,14 +25,11 @@
 
         <config-file parent="/*" target="AndroidManifest.xml">
             <uses-permission android:name="android.permission.BLUETOOTH" />
-        </config-file>
-
-        <config-file parent="/*" target="AndroidManifest.xml">
             <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-        </config-file>
-
-        <config-file parent="/*" target="AndroidManifest.xml">
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
             <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
         </config-file>
+
     </platform>
 </plugin>
