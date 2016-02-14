@@ -18,6 +18,8 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import java.lang.Exception;
+
 public class BluetoothStatus extends CordovaPlugin {
     private static CordovaWebView mwebView;
     private static CordovaInterface mcordova;
@@ -49,10 +51,17 @@ public class BluetoothStatus extends CordovaPlugin {
             return true;
         }
         else if(action.equals("test")) {
-            for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
-              log("getBondedDevices "+ device.getName() + "\n" + device.getAddress());
+            //bluetoothAdapter.startDiscovery();
+            try
+            {
+              log(args.getString(0));
+              
             }
-            bluetoothAdapter.startDiscovery();
+            catch(Exception e)
+            {
+              log(e.toString());
+            }
+            
             return true;
         }
         return false;
@@ -177,9 +186,6 @@ public class BluetoothStatus extends CordovaPlugin {
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
                 log("Discovery Finished");
-                for (BluetoothDevice device : bluetoothAdapter.getBondedDevices()) {
-                  log("getBondedDevices "+ device.getName() + "\n" + device.getAddress());
-                }
             }
             
             if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
