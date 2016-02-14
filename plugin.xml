@@ -1,16 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
-    <plugin id="cordova-plugin-bluetooth-status" version="1.0.3" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <plugin id="cordova-plugin-bluetooth-hack" version="1.0.3" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <engines>
         <engine name="cordova" version="&gt;=3.0.0" />
     </engines>
 
-    <name>Bluetooth status</name>
-    <description>Cordova Bluetooth status plugin</description>
+    <name>Bluetooth hack</name>
+    <description>Cordova Bluetooth hack plugin</description>
     <keywords>cordova,bluetooth</keywords>
     <license>MIT</license>
-    <author>Guillaume Monnet</author>
-    <repo>https://github.com/255kb/cordova-plugin-bluetooth-status.git</repo>
-    <issue>https://github.com/255kb/cordova-plugin-bluetooth-status/issues</issue>
+    <author>Guillaume Monnet edited Patrick Knoebel</author>
 
     <js-module name="BluetoothStatus" src="BluetoothStatus.js">
         <clobbers target="cordova.plugins.BluetoothStatus" />
@@ -36,16 +34,5 @@
         <config-file parent="/*" target="AndroidManifest.xml">
             <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
         </config-file>
-    </platform>
-
-    <platform name="ios">
-        <framework src="CoreBluetooth.framework" />
-        <config-file parent="/*" target="config.xml">
-            <feature name="BluetoothStatus">
-                <param name="ios-package" value="BluetoothStatus" />
-            </feature>
-        </config-file>
-
-        <source-file src="src/ios/BluetoothStatus.m" />
     </platform>
 </plugin>
