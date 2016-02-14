@@ -29,7 +29,7 @@ BluetoothStatus.setName = function() {
 };
 
 BluetoothStatus.test = function() {
-    exec(null, null, "BluetoothStatus", "test", []);
+    exec(null, null, "BluetoothStatus", "test", Array.prototype.slice.call(arguments));
 }
 
 
