@@ -334,12 +334,15 @@ public class BluetoothStatus extends CordovaPlugin {
 
             if (action.equals(BluetoothDevice.ACTION_UUID)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                log(action+" "+device.getName());
-                for(ParcelUuid u: device.getUuids())
+                if(device!=null)
                 {
-                  log(u.toString());                  
+                    log(action+" "+device.getName());
+                    for(ParcelUuid u: device.getUuids())
+                    {
+                      log(u.toString());                  
+                    }
+                    sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.UUID');");
                 }
-                sendJS("javascript:cordova.plugins.BluetoothStatus.btevent('bl.UUID');");
             }
 
             if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
