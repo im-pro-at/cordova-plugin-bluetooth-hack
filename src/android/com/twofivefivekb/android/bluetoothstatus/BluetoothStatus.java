@@ -107,6 +107,11 @@ public class BluetoothStatus extends CordovaPlugin {
               }
               if(args.getString(0).equals("connect"))
               {
+                if(socked!=null)
+                {
+                  socked.close();
+                  socked=null;
+                }
                 new Thread(new Runnable() {
                   public void run() {
                     try
